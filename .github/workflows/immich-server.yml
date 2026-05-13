@@ -1,1 +1,22 @@
 
+name: Immich-Server-Transfer
+on: workflow_dispatch
+
+jobs:
+  download-server:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull and Pack Server Image
+        run: |
+          # 1. 只拉取 server 镜像
+          docker pull ghcr.io/immich-app/immich-server:release
+          
+          # 2. 打包并压缩 (直接用管道符压缩，省空间且快)
+          docker save ghcr.io/immich-app/immich-server:release | gzip > immich-server.tar.gz
+          
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: immich-server-package
+          path: immich-server.tar.gz
+          retention-days: 1
